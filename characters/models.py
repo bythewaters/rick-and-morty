@@ -1,7 +1,7 @@
 from django.db import models
 
 
-class Characters(models.Model):
+class Character(models.Model):
     class StatusChoices(models.TextChoices):
         ALIVE = "Alive"
         DEAD = "Dead"
@@ -9,7 +9,7 @@ class Characters(models.Model):
 
     class GenderChoices(models.TextChoices):
         FEMALE = "Female"
-        MAKE = "Male"
+        MALE = "Male"
         GENDERLESS = "Genderless"
         UNKNOWN = "Unknown"
 
