@@ -1,5 +1,6 @@
 from django.conf import settings
 import requests
+from django.db import IntegrityError
 
 from characters.models import Character
 
@@ -29,7 +30,10 @@ def scraper_url() -> list[Character]:
 
 def save_character(characters: list[Character]) -> None:
     for character in characters:
-        character.save()
+        try:
+            character.save()
+        except IntegrityError:
+            print(f"Character with id {character.api_id} already exist")
 
 
 def sync_characters_with_api() -> None:
