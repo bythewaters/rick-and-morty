@@ -1,3 +1,5 @@
+from typing import List
+
 from django.conf import settings
 import requests
 from django.db import IntegrityError
@@ -5,7 +7,7 @@ from django.db import IntegrityError
 from characters.models import Character
 
 
-def scraper_url() -> list[Character]:
+def scraper_url() -> List[Character]:
     next_url_to_scrape = settings.RICK_AND_MORTY_API_CHARACTERS_URL
     characters = []
 
@@ -28,7 +30,7 @@ def scraper_url() -> list[Character]:
     return characters
 
 
-def save_character(characters: list[Character]) -> None:
+def save_character(characters: List[Character]) -> None:
     for character in characters:
         try:
             character.save()
