@@ -1,0 +1,71 @@
+services:
+  db:
+    image: postgres:12-alpine
+    restart: always
+    volumes:
+      - ./data/db:/var/lib/postgresql/data
+    env_file:
+      - .env
+
+  redis:
+    image: "redis:alpine"
+    hostname: redis
+
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    hostname: app
+    stdin_open: true
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./:/app
+    command: sh -c "python manage.py wait_for_db &&
+                  python manage.py migrate &&
+                  python manage.py runserver 0.0.0.0:8000"
+    env_file:
+      - .env
+    depends_on:
+      - db
+
+  celery:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: "celery -A Rick_and_Morty worker -l info"
+    depends_on:
+      - app
+      - redis
+      - db
+    restart: on-failure
+    env_file:
+      - .env
+
+  celery-beat:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: >
+            sh -c "python manage.py wait_for_db && 
+                  celery -A Rick_and_Morty beat -l INFO --scheduler django_celery_beat.schedulers:DatabaseScheduler"
+    env_file:
+      - .env
+    depends_on:
+      - app
+      - redis
+      - db
+    restart: on-failure
+
+  flower:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "5555:5555"
+    command: "celery -A Rick_and_Morty flower --address=0.0.0.0"
+    depends_on:
+      - celery
+    env_file:
+      - .env

@@ -7,6 +7,7 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 
 from characters.models import Character
+from characters.paginations import LargeResultsSetPagination
 from characters.serializers import CharacterSerializer
 
 
@@ -24,6 +25,7 @@ def get_random_character(request: Request) -> Response:
 
 class CharacterListView(generics.ListAPIView):
     serializer_class = CharacterSerializer
+    pagination_class = LargeResultsSetPagination
 
     def get_queryset(self):
         queryset = Character.objects.all()
